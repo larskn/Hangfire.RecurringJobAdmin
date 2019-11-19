@@ -2,6 +2,7 @@
 using Hangfire.Dashboard;
 using Hangfire.RecurringJobAdmin.Core;
 using Hangfire.RecurringJobAdmin.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,12 +16,15 @@ namespace Hangfire.RecurringJobAdmin.Pages
     {
         public async Task Dispatch([NotNull] DashboardContext context)
         {
+
+            var response = new Response() { Status = true };
+
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
             try
             {
-                if (!"POST".Equals(context.Request.Method, StringComparison.OrdinalIgnoreCase))
+                if (!"GET".Equals(context.Request.Method, StringComparison.OrdinalIgnoreCase))
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                     return;
@@ -55,17 +59,18 @@ namespace Hangfire.RecurringJobAdmin.Pages
                         return;
                 }
 
+                response.Status = result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                response.Status = false;
+                response.Message = ex.Message;
             }
 
-            throw new NotImplementedException();
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
         }
 
-       
+
 
     }
 }

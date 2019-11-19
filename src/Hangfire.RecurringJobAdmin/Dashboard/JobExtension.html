@@ -115,7 +115,11 @@
                             <td>{{job.Method}}</td>
                             <td>{{job.LastExecution}}</td>
                             <td>{{job.NextExecution}}</td>
-                            <td> <button type="button" class="btn btn-warning" @click="GetJob(job.Id)">Edit</button></td>
+                            <td>
+                                <button type="button" class="btn btn-warning" @click="GetJob(job.Id)">Edit</button>
+                                <button type="button" class="btn btn-success" @click="StartJob(job.Id)">Start Job</button>
+                                <button type="button" class="btn btn-danger" @click="StopJob(job.Id)">Stop Job</button>
+                            </td>
                         </tr>
 
                     </tbody>
@@ -135,13 +139,13 @@
         methods: {
             closeModal() {
                 this.$emit('close');
-    
+
             }
 
         }
     });
 
-                    
+
     var appJob = new Vue({
         el: '#app',
         data() {
@@ -159,6 +163,51 @@
             }
         },
         methods: {
+            StartJob(_Id) {
+                axios.get('JobConfiguration/HttpJob?op=startbackgroundjob&jobName=' + _Id).then(response => {
+                    if (!response.data.Status) {
+
+                        this.showModal = false;
+
+                        Swal.fire({
+                            title: 'Error!',
+                            text: response.data.Message,
+                            type: 'error',
+                            confirmButtonText: 'Okay'
+                        }).then((result) => {
+                            this.closeModal();
+                        });
+                    } else {
+
+                        this.closeModal();
+                        this.GetJobs();
+                    }
+                });
+            },
+            StopJob(_Id) {
+
+                axios.get('JobConfiguration/HttpJob?op=stopbackgroundjob&jobName=' + _Id).then(response => {
+
+                    if (!response.data.Status) {
+
+                        this.showModal = false;
+
+                        Swal.fire({
+                            title: 'Error!',
+                            text: response.data.Message,
+                            type: 'error',
+                            confirmButtonText: 'Okay'
+                        }).then((result) => {
+                            this.closeModal();
+                        });
+                    } else {
+
+                        this.closeModal();
+                        this.GetJobs();
+                    }
+
+                });
+            },
             addJob() {
 
                 this.UpdateJob(this.job);
@@ -197,7 +246,7 @@
                 var params = arr.join('&');
 
                 axios.get('JobConfiguration/UpdateJobs?' + params).then(response => {
-                    
+
                     if (!response.data.Status) {
 
                         this.showModal = false;
@@ -208,14 +257,14 @@
                             type: 'error',
                             confirmButtonText: 'Okay'
                         }).then((result) => {
-                                this.closeModal();
+                            this.closeModal();
                         });
                     } else {
-              
-                       this.closeModal();
-                       this.GetJobs();
+
+                        this.closeModal();
+                        this.GetJobs();
                     }
-                    
+
                 }).catch(e => {
                     console.log(e);
                 });
@@ -238,7 +287,7 @@
             }
 
         },
-        
+
         created() {
 
             this.GetJobs();
