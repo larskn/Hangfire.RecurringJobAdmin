@@ -1,15 +1,10 @@
 ﻿using Hangfire.Annotations;
-using Hangfire.Common;
 using Hangfire.Dashboard;
-using Hangfire.RecurringJobAdmin.Core;
 using Hangfire.RecurringJobAdmin.Models;
 using Hangfire.Storage;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-
 using System.Threading.Tasks;
 
 namespace Hangfire.RecurringJobAdmin.Pages
@@ -58,7 +53,7 @@ namespace Hangfire.RecurringJobAdmin.Pages
                 Error = recurringJob.Error,
                 LastExecution = recurringJob.LastExecution,
                 Method = recurringJob.Job.Method.Name,
-                Class = recurringJob.Job.Method.ReflectedType.FullName,
+                Class = recurringJob.Job.Method.ReflectedType.AssemblyQualifiedName,
                 Queue = recurringJob.Queue,
                 LastJobId = recurringJob.LastJobId,
                 LastJobState = recurringJob.LastJobState,

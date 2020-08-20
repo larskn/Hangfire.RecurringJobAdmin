@@ -1,15 +1,13 @@
-﻿using Hangfire.Annotations;
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
+using Hangfire.Annotations;
+using Hangfire.Common;
 using Hangfire.Dashboard;
 using Hangfire.RecurringJobAdmin.Core;
 using Hangfire.RecurringJobAdmin.Models;
 using Hangfire.Storage;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hangfire.RecurringJobAdmin.Pages
 {
@@ -43,11 +41,12 @@ namespace Hangfire.RecurringJobAdmin.Pages
 
                 return;
             }
-            
 
             var manager = new RecurringJobManager(context.Storage);
 
-            manager.AddOrUpdate(job.Id, () => ReflectionHelper.InvokeVoidMethod(job.Class, job.Method), job.Cron, TimeZoneInfo.Utc, job.Queue);
+            var updatedJob = new Job(Type.GetType(job.Class).GetMethod(job.Method));
+
+            manager.AddOrUpdate(job.Id, updatedJob, job.Cron, TimeZoneInfo.Utc, job.Queue);
 
             context.Response.StatusCode = (int)HttpStatusCode.OK;
 
