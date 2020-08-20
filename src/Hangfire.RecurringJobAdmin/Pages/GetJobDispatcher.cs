@@ -1,14 +1,10 @@
 ﻿using Hangfire.Annotations;
-using Hangfire.Common;
 using Hangfire.Dashboard;
-using Hangfire.RecurringJobAdmin.Core;
 using Hangfire.RecurringJobAdmin.Models;
 using Hangfire.Storage;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Hangfire.RecurringJobAdmin.Pages
@@ -29,39 +25,28 @@ namespace Hangfire.RecurringJobAdmin.Pages
                 return;
             }
 
+            var recurringJobs = _connection.GetRecurringJobs();
 
-            var recurringJob = _connection.GetRecurringJobs();
-            var periodicJob = new List<PeriodicJob>();
-
-            if (periodicJob.Count >  0)
-            {
-                recurringJob.ForEach((x) =>
+            var periodicJobs = recurringJobs
+                .Select(x => new PeriodicJob
                 {
-                    periodicJob.Add(new PeriodicJob
-                    {
-                        Id = x.Id,
-                        Cron = x.Cron,
-                        CreatedAt = x.CreatedAt,
-                        Error = x.Error,
-                        LastExecution = x.LastExecution,
-                        Method = x.Job.Method.Name,
-                        Class = x.Job.Method.ReflectedType.FullName,
-                        Queue = x.Queue,
-                        LastJobId = x.LastJobId,
-                        LastJobState = x.LastJobState,
-                        NextExecution = x.NextExecution,
-                        Removed = x.Removed,
-                        TimeZoneId = x.TimeZoneId
-                    });
-                });
-            }
-            
+                    Id = x.Id,
+                    Cron = x.Cron,
+                    CreatedAt = x.CreatedAt,
+                    Error = x.Error,
+                    LastExecution = x.LastExecution,
+                    Method = x.Job.Method.Name,
+                    Class = x.Job.Method.ReflectedType.FullName,
+                    Queue = x.Queue,
+                    LastJobId = x.LastJobId,
+                    LastJobState = x.LastJobState,
+                    NextExecution = x.NextExecution,
+                    Removed = x.Removed,
+                    TimeZoneId = x.TimeZoneId
+                })
+                .ToList();
 
-
-
-           
-
-            await context.Response.WriteAsync(JsonConvert.SerializeObject(periodicJob));
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(periodicJobs));
         }
     }
 }
